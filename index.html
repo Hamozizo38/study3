@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Legendary Study Organizer Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- ============================================================
+    SIDEBAR
+    ============================================================ -->
+    <nav class="sidebar closed" id="sidebar">
+        <div class="sidebar-brand">
+            <span class="logo">🚀</span>
+            <h2>Study <span>Master</span></h2>
+            <span class="version">v6.0</span>
+            <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+        </div>
+
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">📌 Main</div>
+                <button class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+                    <span class="icon">📊</span> Dashboard
+                </button>
+                <button class="nav-item" data-page="subjects" onclick="navigateTo('subjects')">
+                    <span class="icon">📚</span> Subjects
+                    <span class="badge" id="subjectsBadge">0</span>
+                </button>
+                <button class="nav-item" data-page="lessons" onclick="navigateTo('lessons')">
+                    <span class="icon">📖</span> Lessons
+                    <span class="badge" id="lessonsBadge">0</span>
+                </button>
+                <button class="nav-item" data-page="assignments" onclick="navigateTo('assignments')">
+                    <span class="icon">✏️</span> Assignments
+                    <span class="badge" id="assignmentsBadge">0</span>
+                </button>
+                <button class="nav-item" data-page="exams" onclick="navigateTo('exams')">
+                    <span class="icon">📝</span> Exams
+                    <span class="badge" id="examsBadge">0</span>
+                </button>
+                <button class="nav-item" data-page="schedule" onclick="navigateTo('schedule')">
+                    <span class="icon">📅</span> Schedule
+                    <span class="badge" id="scheduleBadge">0</span>
+                </button>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">⚡ Tools</div>
+                <button class="nav-item" data-page="timer" onclick="navigateTo('timer')">
+                    <span class="icon">⏱️</span> Timer
+                </button>
+                <button class="nav-item" data-page="calculator" onclick="navigateTo('calculator')">
+                    <span class="icon">🧮</span> Calculator
+                </button>
+                <button class="nav-item" data-page="periodic" onclick="navigateTo('periodic')">
+                    <span class="icon">⚛️</span> Periodic Table
+                </button>
+                <button class="nav-item" data-page="travel" onclick="navigateTo('travel')">
+                    <span class="icon">✈️</span> Travel Map
+                </button>
+                <button class="nav-item" data-page="files" onclick="navigateTo('files')">
+                    <span class="icon">📁</span> My Files
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="nav-item" onclick="toggleTheme()">
+                <span class="icon">🌙</span> <span id="themeLabel">Dark Mode</span>
+            </button>
+            <button class="nav-item" onclick="manualBackup()">
+                <span class="icon">💾</span> Backup
+            </button>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+        <span>☰</span>
+        <span class="label">Menu</span>
+    </button>
+
+    <!-- ============================================================
+    FLOATING TIMER
+    ============================================================ -->
+    <div class="floating-timer" id="floatingTimer">
+        <div class="timer-header" id="timerHeader">
+            <span>⏱️ Timer</span>
+            <div class="timer-controls">
+                <button onclick="minimizeTimer()">−</button>
+                <button onclick="closeTimer()">✕</button>
+            </div>
+        </div>
+        <div class="timer-body">
+            <div class="time" id="floatingTimerDisplay">25:00</div>
+            <div class="btns">
+                <button class="start" onclick="startFloatingTimer()">▶</button>
+                <button class="pause" onclick="pauseFloatingTimer()">⏸</button>
+                <button class="reset" onclick="resetFloatingTimer()">⏹</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content expanded" id="mainContent">
+
+        <!-- ============================================================
+        PAGE: DASHBOARD
+        ============================================================ -->
+        <div class="page active" id="page-dashboard">
+            <div class="page-header">
+                <h1>📊 <span>Dashboard</span></h1>
+                <div class="actions">
+                    <button class="btn-backup" onclick="manualBackup()"><i class="fas fa-cloud-upload-alt"></i> Backup</button>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card"><div class="num" id="statLessons">0</div><div class="label">📖 Lessons</div></div>
+                <div class="stat-card"><div class="num" id="statAssignments">0</div><div class="label">✏️ Assignments</div></div>
+                <div class="stat-card"><div class="num" id="statExams">0</div><div class="label">📝 Exams</div></div>
+                <div class="stat-card"><div class="num" id="statDone">0</div><div class="label">✅ Done</div></div>
+                <div class="stat-card"><div class="num" id="statPending">0</div><div class="label">⏳ Pending</div></div>
+                <div class="stat-card"><div class="num" id="statSessions">0</div><div class="label">⏱️ Sessions</div></div>
+                <div class="stat-card"><div class="num" id="statCompletion">0%</div><div class="label">📊 Progress</div></div>
+                <div class="stat-card"><div class="num" id="statSubjects">0</div><div class="label">📚 Subjects</div></div>
+            </div>
+
+            <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+            <div id="dashboardContent"></div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: SUBJECTS
+        ============================================================ -->
+        <div class="page" id="page-subjects">
+            <div class="page-header">
+                <h1>📚 <span>Subjects</span></h1>
+                <div class="actions">
+                    <button class="btn-primary" onclick="document.getElementById('subName').focus()"><i class="fas fa-plus"></i> Add Subject</button>
+                </div>
+            </div>
+            <div class="content-grid">
+                <div class="panel">
+                    <h3>➕ Add New Subject</h3>
+                    <div class="form-group">
+                        <label>Subject Name</label>
+                        <input type="text" id="subName" placeholder="e.g., Mathematics">
+                    </div>
+                    <div class="form-group">
+                        <label>Icon</label>
+                        <select id="subIcon">
+                            <option value="📐">📐 Math</option>
+                            <option value="🔬">🔬 Science</option>
+                            <option value="💻">💻 Programming</option>
+                            <option value="🌍">🌍 Geography</option>
+                            <option value="🎨">🎨 Art</option>
+                            <option value="🧪">🧪 Chemistry</option>
+                            <option value="⚡">⚡ Physics</option>
+                            <option value="🧬">🧬 Biology</option>
+                            <option value="📖">📖 Literature</option>
+                            <option value="🎵">🎵 Music</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <input type="color" id="subColor" value="#0f7b8e">
+                    </div>
+                    <button class="btn-submit" onclick="addSubject()"><i class="fas fa-save"></i> Save Subject</button>
+                </div>
+                <div class="panel">
+                    <h3>📋 Subject List</h3>
+                    <input type="text" class="search-box" id="searchSubjects" placeholder="🔍 Search..." oninput="renderSubjects()">
+                    <div class="item-list" id="subjectsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: LESSONS
+        ============================================================ -->
+        <div class="page" id="page-lessons">
+            <div class="page-header">
+                <h1>📖 <span>Lessons</span></h1>
+                <div class="actions">
+                    <button class="btn-primary" onclick="document.getElementById('lesTitle').focus()"><i class="fas fa-plus"></i> Add Lesson</button>
+                </div>
+            </div>
+            <div class="content-grid">
+                <div class="panel">
+                    <h3>➕ Add New Lesson</h3>
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <select id="lesSubject"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Lesson Title</label>
+                        <input type="text" id="lesTitle" placeholder="e.g., Calculus">
+                    </div>
+                    <div class="form-group">
+                        <label>Chapter / Section</label>
+                        <input type="text" id="lesChapter" placeholder="e.g., Chapter 3">
+                    </div>
+                    <div class="form-group">
+                        <label>Lesson Type</label>
+                        <select id="lesType" onchange="toggleLessonType()">
+                            <option value="regular">🔄 Regular (Weekly)</option>
+                            <option value="extra">⭐ Extra (One-time)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="regularDaysGroup">
+                        <label>Select Days (Weekly)</label>
+                        <div class="days-grid" id="lesDays">
+                            <label><input type="checkbox" value="Mon"><span>Mon</span></label>
+                            <label><input type="checkbox" value="Tue"><span>Tue</span></label>
+                            <label><input type="checkbox" value="Wed"><span>Wed</span></label>
+                            <label><input type="checkbox" value="Thu"><span>Thu</span></label>
+                            <label><input type="checkbox" value="Fri"><span>Fri</span></label>
+                            <label><input type="checkbox" value="Sat"><span>Sat</span></label>
+                            <label><input type="checkbox" value="Sun"><span>Sun</span></label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="extraDaysGroup" style="display:none;">
+                        <label>Select Day (Max 2 days)</label>
+                        <div class="days-grid" id="lesExtraDays">
+                            <label><input type="checkbox" value="Mon" onclick="limitExtraDays()"><span>Mon</span></label>
+                            <label><input type="checkbox" value="Tue" onclick="limitExtraDays()"><span>Tue</span></label>
+                            <label><input type="checkbox" value="Wed" onclick="limitExtraDays()"><span>Wed</span></label>
+                            <label><input type="checkbox" value="Thu" onclick="limitExtraDays()"><span>Thu</span></label>
+                            <label><input type="checkbox" value="Fri" onclick="limitExtraDays()"><span>Fri</span></label>
+                            <label><input type="checkbox" value="Sat" onclick="limitExtraDays()"><span>Sat</span></label>
+                            <label><input type="checkbox" value="Sun" onclick="limitExtraDays()"><span>Sun</span></label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" id="lesTime">
+                    </div>
+                    <div class="form-group">
+                        <label>Link (Video, PDF, etc.)</label>
+                        <input type="url" id="lesFileLink" placeholder="https://example.com/lesson.pdf">
+                    </div>
+                    <button class="btn-submit" onclick="addLesson()"><i class="fas fa-save"></i> Save Lesson</button>
+                </div>
+                <div class="panel">
+                    <h3>📋 Lesson List</h3>
+                    <input type="text" class="search-box" id="searchLessons" placeholder="🔍 Search..." oninput="renderLessons()">
+                    <div class="item-list" id="lessonsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: ASSIGNMENTS
+        ============================================================ -->
+        <div class="page" id="page-assignments">
+            <div class="page-header">
+                <h1>✏️ <span>Assignments</span></h1>
+                <div class="actions">
+                    <button class="btn-primary" onclick="document.getElementById('assTitle').focus()"><i class="fas fa-plus"></i> Add Assignment</button>
+                </div>
+            </div>
+            <div class="content-grid">
+                <div class="panel">
+                    <h3>➕ Add New Assignment</h3>
+                    <div class="form-group"><label>Subject</label><select id="assSubject"></select></div>
+                    <div class="form-group"><label>Title</label><input type="text" id="assTitle" placeholder="e.g., Exercise 5"></div>
+                    <div class="form-group"><label>Description</label><input type="text" id="assDesc" placeholder="Details"></div>
+                    <div class="form-group"><label>Deadline</label><input type="date" id="assDeadline"></div>
+                    <button class="btn-submit" onclick="addAssignment()"><i class="fas fa-save"></i> Save</button>
+                </div>
+                <div class="panel">
+                    <h3>📋 Assignment List</h3>
+                    <input type="text" class="search-box" id="searchAssignments" placeholder="🔍 Search..." oninput="renderAssignments()">
+                    <div class="item-list" id="assignmentsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: EXAMS
+        ============================================================ -->
+        <div class="page" id="page-exams">
+            <div class="page-header">
+                <h1>📝 <span>Exams</span></h1>
+                <div class="actions">
+                    <button class="btn-primary" onclick="document.getElementById('exTitle').focus()"><i class="fas fa-plus"></i> Add Exam</button>
+                </div>
+            </div>
+            <div class="content-grid">
+                <div class="panel">
+                    <h3>➕ Add New Exam</h3>
+                    <div class="form-group"><label>Subject</label><select id="exSubject"></select></div>
+                    <div class="form-group"><label>Title</label><input type="text" id="exTitle" placeholder="e.g., Final Exam"></div>
+                    <div class="form-group"><label>Date</label><input type="date" id="exDate"></div>
+                    <div class="form-group"><label>Notes</label><input type="text" id="exNotes" placeholder="Details"></div>
+                    <button class="btn-submit" onclick="addExam()"><i class="fas fa-save"></i> Save</button>
+                </div>
+                <div class="panel">
+                    <h3>📋 Exam List</h3>
+                    <input type="text" class="search-box" id="searchExams" placeholder="🔍 Search..." oninput="renderExams()">
+                    <div class="item-list" id="examsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: SCHEDULE
+        ============================================================ -->
+        <div class="page" id="page-schedule">
+            <div class="page-header">
+                <h1>📅 <span>Schedule</span></h1>
+                <div class="actions">
+                    <button class="btn-primary" onclick="document.getElementById('schTime').focus()"><i class="fas fa-plus"></i> Add Event</button>
+                </div>
+            </div>
+            <div class="content-grid">
+                <div class="panel">
+                    <h3>➕ Add New Event</h3>
+                    <div class="form-group"><label>Day</label><select id="schDay"><option>Mon</option><option>Tue</option><option>Wed</option><option>Thu</option><option>Fri</option><option>Sat</option><option>Sun</option></select></div>
+                    <div class="form-group"><label>Subject</label><select id="schSubject"></select></div>
+                    <div class="form-group"><label>Time</label><input type="time" id="schTime"></div>
+                    <div class="form-group"><label>Location</label><input type="text" id="schLocation" placeholder="e.g., Room 3"></div>
+                    <button class="btn-submit" onclick="addScheduleItem()"><i class="fas fa-save"></i> Save</button>
+                </div>
+                <div class="panel">
+                    <h3>📋 Schedule List</h3>
+                    <input type="text" class="search-box" id="searchSchedule" placeholder="🔍 Search..." oninput="renderSchedule()">
+                    <div class="item-list" id="scheduleList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: TIMER
+        ============================================================ -->
+        <div class="page" id="page-timer">
+            <div class="page-header">
+                <h1>⏱️ <span>Timer</span></h1>
+                <div class="actions">
+                    <button class="btn-primary" onclick="toggleTimerVisibility()"><i class="fas fa-eye"></i> Toggle Floating</button>
+                </div>
+            </div>
+            <div class="panel" style="max-width:400px;margin:0 auto;">
+                <div class="timer-box">
+                    <div class="time" id="timerDisplay">25:00</div>
+                    <div style="font-size:14px;opacity:0.9;margin-top:4px;" id="timerModeText">🧠 Focus</div>
+                    <div class="btns">
+                        <button class="start" onclick="startTimer()"><i class="fas fa-play"></i> Start</button>
+                        <button class="pause" onclick="pauseTimer()"><i class="fas fa-pause"></i> Pause</button>
+                        <button class="reset" onclick="resetTimer()"><i class="fas fa-redo"></i> Reset</button>
+                    </div>
+                    <div class="timer-settings">
+                        <div><label>⏱️ Focus</label><input type="number" id="timerFocusInput" value="25" min="1" max="120"></div>
+                        <div><label>☕ Break</label><input type="number" id="timerBreakInput" value="5" min="1" max="30"></div>
+                    </div>
+                    <div style="margin-top:12px;font-size:14px;">Sessions: <span id="sessionCount">0</span></div>
+                    <button class="btn-submit" style="margin-top:14px;background:rgba(255,255,255,0.2);color:white;border:2px solid rgba(255,255,255,0.3);" onclick="saveTimerSettings()"><i class="fas fa-save"></i> Save Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: CALCULATOR
+        ============================================================ -->
+        <div class="page" id="page-calculator">
+            <div class="page-header">
+                <h1>🧮 <span>Advanced Calculator</span></h1>
+            </div>
+            <div class="panel" style="max-width:500px;margin:0 auto;">
+                <div class="calc-display" id="calcDisplay">0</div>
+                <div class="calc-grid">
+                    <button class="calc-btn" onclick="calcInput('7')">7</button>
+                    <button class="calc-btn" onclick="calcInput('8')">8</button>
+                    <button class="calc-btn" onclick="calcInput('9')">9</button>
+                    <button class="calc-btn operator" onclick="calcInput('÷')">÷</button>
+                    <button class="calc-btn" onclick="calcInput('4')">4</button>
+                    <button class="calc-btn" onclick="calcInput('5')">5</button>
+                    <button class="calc-btn" onclick="calcInput('6')">6</button>
+                    <button class="calc-btn operator" onclick="calcInput('×')">×</button>
+                    <button class="calc-btn" onclick="calcInput('1')">1</button>
+                    <button class="calc-btn" onclick="calcInput('2')">2</button>
+                    <button class="calc-btn" onclick="calcInput('3')">3</button>
+                    <button class="calc-btn operator" onclick="calcInput('-')">−</button>
+                    <button class="calc-btn" onclick="calcInput('0')">0</button>
+                    <button class="calc-btn" onclick="calcInput('.')">.</button>
+                    <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+                    <button class="calc-btn operator equals" onclick="calcInput('=')">=</button>
+                    <button class="calc-btn clear" onclick="calcClear()">C</button>
+                    <button class="calc-btn operator" onclick="calcInput('√(')">√</button>
+                    <button class="calc-btn operator" onclick="calcInput('**2')">x²</button>
+                    <button class="calc-btn operator" onclick="calcInput('sin(')">sin</button>
+                    <button class="calc-btn operator" onclick="calcInput('cos(')">cos</button>
+                    <button class="calc-btn operator" onclick="calcInput('tan(')">tan</button>
+                    <button class="calc-btn operator" onclick="calcInput('log10(')">log</button>
+                    <button class="calc-btn operator" onclick="calcInput('log(')">ln</button>
+                    <button class="calc-btn operator" onclick="calcInput('Math.PI')">π</button>
+                    <button class="calc-btn operator" onclick="calcInput('Math.E')">e</button>
+                    <button class="calc-btn operator" onclick="calcInput('!')">!</button>
+                    <button class="calc-btn operator" onclick="calcInput('(')">(</button>
+                    <button class="calc-btn operator" onclick="calcInput(')')">)</button>
+                    <button class="calc-btn operator" onclick="calcInput('**')">xʸ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: PERIODIC TABLE
+        ============================================================ -->
+        <div class="page" id="page-periodic">
+            <div class="page-header">
+                <h1>⚛️ <span>Periodic Table</span></h1>
+                <div class="actions">
+                    <input type="text" class="search-box" style="width:200px;" id="periodicSearch" placeholder="🔍 Search element..." oninput="searchElement()">
+                </div>
+            </div>
+            <div class="periodic-table" id="periodicTable"></div>
+            <div class="panel" id="elementInfo" style="display:none;margin-top:16px;">
+                <h3 id="elementName">🔬 Element</h3>
+                <div id="elementDetails"></div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: TRAVEL MAP
+        ============================================================ -->
+        <div class="page" id="page-travel">
+            <div class="page-header">
+                <h1>✈️ <span>Travel Map</span></h1>
+                <div class="actions">
+                    <button class="btn-primary" onclick="startTravel()"><i class="fas fa-plane"></i> Start Journey</button>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="travel-container">
+                    <div class="travel-map" id="travelMap">
+                        <div class="world-map">🌍</div>
+                        <div class="plane-icon" id="planeIcon">✈️</div>
+                        <div class="travel-info" id="travelInfo">
+    <div class="from">📍 <span id="fromCity">Cairo</span></div>
+    <div class="to">📍 <span id="toCity">Dubai</span></div>
+    <div class="time">⏱️ <span id="travelTime">00:00</span></div>
+    <div class="real-time-display" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.15);">
+        <div style="font-size:13px;opacity:0.9;">🇪🇬 <span id="fromTimeDisplay">--:--:--</span></div>
+        <div style="font-size:13px;opacity:0.9;">🇦🇪 <span id="toTimeDisplay">--:--:--</span></div>
+        <div style="font-size:13px;opacity:0.9;text-align:left;" id="timeDiffDisplay">⏱️ 0h</div>
+    </div>
+    <div class="progress"><div class="bar" id="travelProgress"></div></div>
+</div>
+                    </div>
+                    <div class="travel-controls">
+                        <div class="form-group">
+                            <label>From</label>
+                            <select id="fromCitySelect">
+                                <option value="Cairo">🇪🇬 Cairo</option>
+                                <option value="Dubai">🇦🇪 Dubai</option>
+                                <option value="London">🇬🇧 London</option>
+                                <option value="New York">🇺🇸 New York</option>
+                                <option value="Tokyo">🇯🇵 Tokyo</option>
+                                <option value="Paris">🇫🇷 Paris</option>
+                                <option value="Berlin">🇩🇪 Berlin</option>
+                                <option value="Rome">🇮🇹 Rome</option>
+                                <option value="Moscow">🇷🇺 Moscow</option>
+                                <option value="Beijing">🇨🇳 Beijing</option>
+                                <option value="Sydney">🇦🇺 Sydney</option>
+                                <option value="Rio">🇧🇷 Rio</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>To</label>
+                            <select id="toCitySelect">
+                                <option value="Dubai">🇦🇪 Dubai</option>
+                                <option value="Cairo">🇪🇬 Cairo</option>
+                                <option value="London">🇬🇧 London</option>
+                                <option value="New York">🇺🇸 New York</option>
+                                <option value="Tokyo">🇯🇵 Tokyo</option>
+                                <option value="Paris">🇫🇷 Paris</option>
+                                <option value="Berlin">🇩🇪 Berlin</option>
+                                <option value="Rome">🇮🇹 Rome</option>
+                                <option value="Moscow">🇷🇺 Moscow</option>
+                                <option value="Beijing">🇨🇳 Beijing</option>
+                                <option value="Sydney">🇦🇺 Sydney</option>
+                                <option value="Rio">🇧🇷 Rio</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Speed</label>
+                            <input type="range" id="travelSpeed" min="1" max="10" value="3" oninput="document.getElementById('speedLabel').textContent=this.value">
+                            <span id="speedLabel">3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: FILES
+        ============================================================ -->
+        <div class="page" id="page-files">
+            <div class="page-header">
+                <h1>📁 <span>My Files</span></h1>
+                <div class="actions">
+                    <button class="btn-primary" onclick="document.getElementById('fileUpload').click()"><i class="fas fa-upload"></i> Upload</button>
+                    <input type="file" id="fileUpload" style="display:none" onchange="uploadFile(event)">
+                </div>
+            </div>
+            <div class="content-grid">
+                <div class="panel">
+                    <h3>📤 Add New File</h3>
+                    <div class="form-group"><label>Subject</label><select id="fileSubject"></select></div>
+                    <div class="form-group"><label>File Name</label><input type="text" id="fileName" placeholder="e.g., Chapter 1 Summary"></div>
+                    <div class="form-group"><label>Type</label><select id="fileType">
+                        <option value="pdf">📄 PDF</option>
+                        <option value="doc">📝 Word</option>
+                        <option value="ppt">📊 PowerPoint</option>
+                        <option value="image">🖼️ Image</option>
+                        <option value="video">🎬 Video</option>
+                        <option value="link">🔗 Link</option>
+                    </select></div>
+                    <div class="form-group"><label>File URL</label><input type="url" id="fileUrl" placeholder="https://example.com/file.pdf"></div>
+                    <button class="btn-submit" onclick="addFile()"><i class="fas fa-save"></i> Save File</button>
+                </div>
+                <div class="panel">
+                    <h3>📋 My Files</h3>
+                    <input type="text" class="search-box" id="searchFiles" placeholder="🔍 Search..." oninput="renderFiles()">
+                    <div class="item-list" id="filesList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        PAGE: MEDIA TOOLS
+        ============================================================ -->
+        
+
+    </div>
+
+    <!-- ============================================================
+    SCRIPTS
+    ============================================================ -->
+    <script src="script.js"></script>
+</body>
+</html>
